@@ -1,0 +1,15 @@
+*.pdb
+*.exe
+*.testdurations
+*.ilk
+*.idb
+*.lib
+*.obj
+*.log
+*.pch
+*.recipe
+*.tlog
+*.lastbuildstate
+*.CopyComplete
+*.txt
+/.vs

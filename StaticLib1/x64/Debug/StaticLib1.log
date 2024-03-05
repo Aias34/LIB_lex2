@@ -1,6 +1,0 @@
-﻿  pch.cpp
-  StaticLib2.cpp
-  StaticLib1.cpp
-  Создание кода...
-C:\Users\danelyubin\source\repos\Sample-Test1\StaticLib1\StaticLib1.cpp(295): warning C4715: tick: значение возвращается не при всех путях выполнения
-  StaticLib1.vcxproj -> C:\Users\danelyubin\source\repos\Sample-Test1\x64\Debug\StaticLib1.lib

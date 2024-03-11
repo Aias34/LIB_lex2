@@ -8,16 +8,16 @@
 class Lexer
 {
 public:
-    Lexer(std::string);
+    Lexer(std::istream&);
     virtual ~Lexer();
-    std::pair<int, std::string> getNextLexem();
+    std::pair<std::string, std::string> getNextLexem();
 
 protected:
 
 private:
     int state;
     char cache;
-    std::string stroka;
+    std::istream& stream;
 };
 
 #endif // LEXER_H

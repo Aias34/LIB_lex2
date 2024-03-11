@@ -1,295 +1,393 @@
-﻿// StaticLib1.cpp : Определяет функции для статической библиотеки.
-//
-
-#include "pch.h"
-#include "framework.h"
+﻿#include "pch.h"
 #include "fsm_lib.h"
 #include <iostream>
 #include <vector>
 #include <string>
-#include <cctype>
 
 using namespace std;
 
-// TODO: Это пример библиотечной функции.
-int i = 0;
-string keyword;
+std::string word = "";
 
 
-void cl() {
-    i = 0;
-}
-
-void read(char& cache, istream& stroka) {
-    if (stroka) {
-        stroka.get(cache);
+void read(char& cache, istream& stream) {
+    if (stream) {
+        stream.get(cache);
     }
-    if (!stroka) {
+    if (!stream) {
         cache = 0;
     }
 }
 
-Lexem tick(int state, string stroka) {
-    char cache = stroka[i];
-    string ch = "";
-    switch (state) {
-    case 0:
-        switch (cache) {
-        case '>':
-            ++i;
-            return { 0, "opgt " };
-
+pair<int, Lexem> tick(int state, istream& stream, char& cache) {
+    switch (state)
+    {
+    case 0: {
+        switch (cache)
+        {
+        case 0:
+            return { -1, {"end",""} };
         case '(':
-            ++i;
-            return { 0, "lpar " };
-
+            read(cache, stream);
+            return { 0, {"lpar",""} };
+            break;
         case ')':
-            ++i;
-            return { 0, "rpar " };
-
+            read(cache, stream);
+            return { 0, {"rpar",""} };
+            break;
         case '{':
-            ++i;
-            return { 0, "lbrace " };
-
+            read(cache, stream);
+            return { 0, {"lbrace",""} };
+            break;
         case '}':
-            ++i;
-            return { 0, "rbrace " };
-
+            read(cache, stream);
+            return { 0, {"rbrace",""} };
+            break;
         case ';':
-            ++i;
-            return { 0, "semicolon " };
-
+            read(cache, stream);
+            return { 0, {"semicolon",""} };
+            break;
         case ',':
-            ++i;
-            return { 0, "comma " };
-
+            read(cache, stream);
+            return { 0, {"comma",""} };
         case '.':
-            ++i;
-            return { 0, "colon " };
-
+            read(cache, stream);
+            return { 0, {"colon",""} };
+            break;
+        case '>':
+            read(cache, stream);
+            return { 0, {"opgt",""} };
+            break;
         case '*':
-            ++i;
-            return { 0, "opmul " };
-
-        case '<':
-            if (i + 1 < stroka.length() && stroka[i + 1] == '=') {
-                i += 2;
-                return { 0, "ople " };
-            }
-            else {
-                ++i;
-                return { 0, "oplt " };
-            }
-
-        case '!':
-            if (i + 1 < stroka.length() && stroka[i + 1] == '=') {
-                i += 2;
-                return { 0, "opne " };
-            }
-            else {
-                ++i;
-                return { 0, "opnot " };
-            }
-
-        case '=':
-            if (i + 1 < stroka.length() && stroka[i + 1] == '=') {
-                i += 2;
-                return { 0, "opeq " };
-            }
-            else {
-                ++i;
-                return { 0, "opassign " };
-            }
-
-        case '+':
-            if (i + 1 < stroka.length() && stroka[i + 1] == '+') {
-                i += 2;
-                return { 0, "opinc " };
-            }
-            else {
-                ++i;
-                return { 0, "opplus " };
-            }
-
+            read(cache, stream);
+            return { 0, {"opmul",""} };
+            break;
         case '|':
-            if (i + 1 < stroka.length() && stroka[i + 1] == '|') {
-                i += 2;
-                return { 0, "opor " };
-            }
-            else {
-                return  LEX_ERROR;
-            }
-
+            read(cache, stream);
+            return { 1 , {"",""} };
         case '&':
-            if (i + 1 < stroka.length() && stroka[i + 1] == '&') {
-                i += 2;
-                return { 0, "opand " };
-            }
-            else {
-                return LEX_ERROR;
-            }
-
-        case '\'':
-            if (i + 1 > stroka.length() || stroka[i + 1] == '\'') {
-                return LEX_ERROR;
-            }
-            else {
-                ch.push_back(stroka[i + 1]);
-                i += 2;
-                return { 0, "char(" + ch + ") " };
-            }
-
+            read(cache, stream);
+            return { 2, {"",""} };
+        case '<':
+            read(cache, stream);
+            return { 3, {"",""} };
+        case '!':
+            read(cache, stream);
+            return { 4, {"",""} };
+        case '=':
+            read(cache, stream);
+            return { 5, {"",""} };
+        case '+':
+            read(cache, stream);
+            return { 6, {"",""} };
+        case '\u0027':
+            read(cache, stream);
+            return { 7, {"",""} };
         case '"':
-            if (i + 1 < stroka.length()) {
-                return LEX_ERROR;
-            }
-            else {
-                ++i;
-                return{ 1, "str(" };
-            }
-
+            read(cache, stream);
+            return { 8, {"",""} };
         case '-':
-            if (i + 1 < stroka.length() && isdigit(stroka[i + 1])) {
-                ++i;
-                return{ 2, "num(-" };
-            }
-            else {
-                ++i;
-                return{ 0, "opminus " };
-            }
-
+            read(cache, stream);
+            return { 9, {"",""} };
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            word += cache;
+            read(cache, stream);
+            return { 20, {"",""} };
+        case 'a':
+        case 'b':
+        case 'd':
+        case 'g':
+        case 'h':
+        case 'j':
+        case 'k':
+        case 'l':
+        case 'm':
+        case 'n':
+        case 'p':
+        case 'q':
+        case 't':
+        case 'u':
+        case 'v':
+        case 'x':
+        case 'y':
+        case 'z':
+        case 'i':
+        case 'c':
+        case 'e':
+        case 's':
+        case 'w':
+        case 'f':
+        case 'r':
+        case 'o':
+        case 'Q':
+        case 'W':
+        case 'E':
+        case 'R':
+        case 'T':
+        case 'Y':
+        case 'U':
+        case 'I':
+        case 'O':
+        case 'P':
+        case 'A':
+        case 'S':
+        case 'D':
+        case 'F':
+        case 'G':
+        case 'H':
+        case 'J':
+        case 'K':
+        case 'L':
+        case 'Z':
+        case 'X':
+        case 'C':
+        case 'V':
+        case 'B':
+        case 'N':
+        case 'M':
+            word += cache;
+            read(cache, stream);
+            return { 21, {"",""} };
         case ' ':
         case '\t':
         case '\n':
-            ++i;
-            if (i + 1 <= stroka.length()) {
-                return LEX_EMPTY;
-            }
-            else {
-                return LEX_EOF;
-            }
-
-        case 0:
-            return LEX_EOF;
-
-        default:
-            if (isdigit(cache)) {
-                if (i + 1 >= stroka.length()) {
-                    ch.append("num(");
-                    ch.push_back(cache);
-                    ch.append(") ");
-                    ++i;
-                    return{ 0, ch };
-                }
-                else {
-                    ch.append("num(");
-                    ch.push_back(cache);
-                    ++i;
-                    return{ 2, ch };
-                }
-            }
-            if (isalpha(cache)) {
-                if (i + 1 > stroka.length()) {
-                    ch.append("id(");
-                    ch.push_back(cache);
-                    ch.append(") ");
-                    ++i;
-                    return{ 0, ch };
-                }
-                else {
-                    if (isalpha(stroka[i + 1]) || isdigit(stroka[i + 1])) {
-                        return{ 3, "" };
-                    }
-                    else {
-                        ++i;
-                        ch.append("id(");
-                        ch.push_back(cache);
-                        ch.append(") ");
-                        return{ 0, ch };
-                    }
-                }
-            }
+            word.clear();
+            read(cache, stream);
+            return { 0, {"",""} };
         }
-    case 1:
-        switch (cache) {
-        case '"':
-            return { 0, ") " };
-
-        default:
-            if (i + 1 >= stroka.length()) {
-                return LEX_ERROR;
-            }
-            else {
-                ++i;
-                ch.push_back(cache);
-                return { 1, ch };
-            }
+    }
+    case 1: {
+        if (cache == '|') {
+            read(cache, stream);
+            return { 11, {"",""} };
         }
+        else {
+            return { -1, {"error",""} };
+        }
+        break;
+    }
+    case 10: {
+        return { 0, {"opor",""} };
+        break;
 
-    case 2:
+    }
+    case 2: {
+        if (cache == '&') {
+            read(cache, stream);
+            return { 13, {"",""} };
+        }
+        else {
+            return { -1, {"error",""} };
+        }
+        break;
+    }
+    case 11: {
+        return { 0, {"opand",""} };
+        break;
+    }
+    case 3: {
+        if (cache == '=') {
+            read(cache, stream);
+            return { 12, {"",""} };
+        }
+        else {
+            return { 0, {"oplt",""} };
+        }
+        break;
+    }
+    case 12: {
+        return { 0, {"ople",""} };
+        break;
+    }
+    case 4: {
+        if (cache == '=') {
+            read(cache, stream);
+            return { 5, {"",""} };
+        }
+        else {
+            return { 0, {"opnot",""} };
+        }
+        break;
+    }
+    case 13: {
+        return { 0, {"opne",""} };
+        break;
+    }
+    case 5: {
+        if (cache == '=') {
+            read(cache, stream);
+            return { 14, {"",""} };
+        }
+        else {
+            return { 0, {"opassign",""} };
+        }
+        break;
+    }
+    case 14: {
+        return { 0, {"opeq",""} };
+        break;
+    }
+    case 6: {
+        if (cache == '+') {
+            read(cache, stream);
+            return { 15, {"",""} };
+        }
+        else {
+            return { 0, {"opplus",""} };
+        }
+        break;
+    }
+    case 15: {
+        return { 0, {"opinc",""} };
+        break;
+    }
+    case 7: {
+        if (cache == '\u0027') {
+            return { -1, {"error",""} };
+        }
+        else {
+            read(cache, stream);
+            return { 16, {"",""} };
+        }
+        break;
+    }
+    case 16: {
+        if (cache == '\u0027') {
+            read(cache, stream);
+            return { 17, {"",""} };
+        }
+        else {
+            return { -1, {"error",""} };
+        }
+        break;
+    }
+    case 17: {
+        return { 0, {"char(value)",""} };
+        break;
+    }
+    case 8: {
+        if (cache != '"' && cache != ' ') {
+            read(cache, stream);
+            return { 18, {"",""} };
+        }
+        else {
+            return { -1, {"error",""} };
+        }
+        break;
+    }
+    case 18: {
+        if (cache != ' ' && cache != '"') {
+            read(cache, stream);
+            return { 18, {"",""} };
+        }
+        if (cache == '"') {
+            read(cache, stream);
+            return { 19, {"",""} };
+        }
+        else {
+            return { -1, {"error",""} };
+        }
+    }
+    case 19: {
+        return { 0, {"str(value)",""} };
+        break;
+    }
+    case 9: {
         if (isdigit(cache)) {
-            ch.push_back(cache);
-            ++i;
-            if (i + 1 > stroka.length()) {
-                return{ 0, ch + ") " };
-            }
-            else {
-                return{ 2, ch };
-            }
+            word += '-';
+            word += cache;
+            read(cache, stream);
+            return { 20, {"",""} };
         }
         else {
-            return{ 0, ") " };
+
+            return { 0, {"opminus",""} };
+            break;
         }
-
-
-    case 3:
-        if (isdigit(cache) || isalpha(cache)) {
-            if (i + 1 <= stroka.length()) {
-                keyword.push_back(cache);
-                if (keyword == "int" || keyword == "char" ||
-                    keyword == "if" || keyword == "else" ||
-                    keyword == "switch" || keyword == "case" ||
-                    keyword == "while" || keyword == "for" ||
-                    keyword == "return" || keyword == "in" ||
-                    keyword == "out") {
-                    if (stroka[i + 1] != 't') {
-                        ++i;
-                        return{ 4, "kw" + keyword + " " };
-                    }
-                    else {
-                        i += 2;
-                        return{ 4, "kw" + keyword + "t " };
-                    }
-
-                }
-                else {
-                    ++i;
-                    return{ 3, "" };
-                }
-            }
-            else {
-                if (isalpha(cache)) {
-                    keyword.push_back(cache);
-                }
-                ch.append("id(" + keyword + ") ");
-                return{ 4, ch };
-            }
+        break;
+    }
+    case 20: {
+        if (isdigit(cache)) {
+            word += cache;
+            read(cache, stream);
+            return { 20, {"",""} };
+        }
+        string temp = word;
+        word = "";
+        return { 0, {"num",temp} };
+    }
+    case 21: {
+        if (isalpha(cache) || isdigit(cache) || cache == '_') {
+            word += cache;
+            read(cache, stream);
+            return { 21, {"",""} };
         }
         else {
-            if (isalpha(cache)) {
-                keyword.push_back(cache);
+            if (word == "int") {
+                word.clear();
+
+                return { 0, {"kwint", ""} };
+
             }
-            ch.append("id(" + keyword + ") ");
-            return{ 4, ch };
+            if (word == "char") {
+                word.clear();
+                return { 0, {"kwchar", ""} };
+
+            }
+            if (word == "if") {
+                word.clear();
+                return { 0, {"kwif", ""} };
+
+            }
+            if (word == "else") {
+                word.clear();
+                return { 0, {"kwelse", ""} };
+
+            }
+            if (word == "switch") {
+                word.clear();
+                return { 0, {"kwswitch", ""} };
+                word.clear();
+            }
+            if (word == "case") {
+                word.clear();
+                return { 0, {"kwcase", ""} };
+            }
+            if (word == "while") {
+                word.clear();
+                return { 0, {"kwwhile", ""} };
+            }
+            if (word == "for") {
+                word.clear();
+                return { 0, {"kwfor", ""} };
+            }
+            if (word == "return") {
+                word.clear();
+                return { 0, {"kwreturn", ""} };
+            }
+            if (word == "in") {
+                word.clear();
+                return { 0, {"kwin", ""} };
+            }
+            if (word == "out") {
+                word.clear();
+                return { 0, {"kwout", ""} };
+            }
         }
+        string temp = word;
+        word = "";
+        return { 0, {"id",temp} };
 
-
-
-    case 4:
-        keyword = "";
-        return{ 0, "" };
-
-    case -1:
-        return LEX_EOF;
+    }
+    default:
+        break;
     }
 }

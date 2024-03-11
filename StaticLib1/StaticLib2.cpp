@@ -1,8 +1,4 @@
-// StaticLib1.cpp : Определяет функции для статической библиотеки.
-//
-
 #include "pch.h"
-#include "framework.h"
 #include "Lexer_lib.h"
 #include "fsm_lib.h"
 #include <iostream>
@@ -12,9 +8,10 @@
 using namespace std;
 
 
-Lexer::Lexer(string stroka) : state{ 0 }, stroka{ stroka }
-{}
-
+Lexer::Lexer(istream& stream) : state{ 0 }, stream{ stream }
+{
+    read(cache, stream);
+}
 
 Lexer::~Lexer()
 {
@@ -23,23 +20,10 @@ Lexer::~Lexer()
 
 Lexem Lexer::getNextLexem() {
     Lexem lex = LEX_EMPTY;
-    string lexem = "";
-
-    auto res = tick(state, stroka);
-    state = res.first;
-    if (res == LEX_ERROR) {
-        lex = LEX_ERROR;
-    }
-    else if (res == LEX_EOF) {
-        lex = LEX_EOF;
-    }
-    else if (res == LEX_EMPTY) {
-        lex = { 0, lexem };
-        return getNextLexem();
-    }
-    else {
-        lexem.append(res.second);
-        lex = { state, lexem };
+    while (lex == LEX_EMPTY and state >= 0) {
+        auto res = tick(state, stream, cache);
+        state = res.first;
+        lex = res.second;
     }
     return lex;
 }
